@@ -1,0 +1,1930 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Stock Analysis Suite</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="rgba(255,255,255,0.1)"><polygon points="0,0 1000,0 1000,80 0,100"/></svg>');
+            background-size: cover;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            font-weight: 800;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            padding: 15px 25px;
+            color: white;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border-bottom-color: #27ae60;
+        }
+
+        .nav-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .method-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .method-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(135deg, #3498db, #2ecc71);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .method-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            border-color: #3498db;
+        }
+
+        .method-card:hover:before {
+            transform: scaleX(1);
+        }
+
+        .method-card.selected {
+            border-color: #27ae60;
+            background: linear-gradient(135deg, #f8fff8, #e8f5e8);
+            transform: translateY(-5px);
+        }
+
+        .method-card.selected:before {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            transform: scaleX(1);
+        }
+
+        .method-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .method-icon {
+            font-size: 2.5em;
+            margin-right: 15px;
+        }
+
+        .method-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .method-description {
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .method-formula {
+            background: linear-gradient(135deg, #ecf0f1, #bdc3c7);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            text-align: center;
+            color: #34495e;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .method-complexity {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .complexity-stars {
+            color: #f39c12;
+            margin-left: 10px;
+        }
+
+        .method-best-for {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #2980b9;
+            font-weight: 600;
+        }
+
+        .input-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .section-title {
+            font-size: 2em;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #3498db;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: #27ae60;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+            position: relative;
+        }
+
+        .input-tooltip {
+            position: absolute;
+            right: 0;
+            top: 0;
+            background: #3498db;
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: help;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .input-tooltip:hover {
+            background: #2980b9;
+            transform: scale(1.1);
+        }
+
+        .input-tooltip:hover:after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: 30px;
+            right: 0;
+            background: #2c3e50;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            font-weight: normal;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 15px 18px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: #3498db;
+            outline: none;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
+        }
+
+        .selected-methods {
+            background: linear-gradient(135deg, #e8f5e8, #d5f4d5);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 2px solid #27ae60;
+        }
+
+        .method-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 25px;
+            margin: 5px;
+            font-size: 0.9em;
+            font-weight: 600;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .method-tag:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .method-tag .remove-tag {
+            margin-left: 8px;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        .method-tag .remove-tag:hover {
+            opacity: 1;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover:before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .analysis-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 6px solid #3498db;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .analysis-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .analysis-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 120px;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(46, 204, 113, 0.1));
+            transform: skewX(-15deg);
+            transform-origin: top right;
+        }
+
+        .analysis-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .analysis-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+
+        .analysis-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .analysis-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin: 15px 0;
+        }
+
+        .analysis-value.excellent { color: #27ae60; }
+        .analysis-value.good { color: #f39c12; }
+        .analysis-value.fair { color: #3498db; }
+        .analysis-value.poor { color: #e74c3c; }
+
+        .analysis-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .detail-item {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid #3498db;
+        }
+
+        .detail-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .recommendation {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .recommendation.buy {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .recommendation.hold {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .recommendation.sell {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .final-score {
+            background: linear-gradient(135deg, #8e44ad, #9b59b6);
+            color: white;
+            text-align: center;
+            padding: 40px;
+            border-radius: 20px;
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .final-score::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(180deg); }
+        }
+
+        .final-score h2 {
+            font-size: 2.2em;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .score-value {
+            font-size: 5em;
+            font-weight: 700;
+            margin: 25px 0;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .score-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .score-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .scenario-analysis {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+        }
+
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .scenario-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .risk-meter {
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(90deg, #27ae60 0%, #f39c12 50%, #e74c3c 100%);
+            border-radius: 10px;
+            position: relative;
+            margin: 15px 0;
+        }
+
+        .risk-indicator {
+            position: absolute;
+            top: -5px;
+            width: 30px;
+            height: 30px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            transition: left 0.3s ease;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #27ae60);
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        @media (max-width: 768px) {
+            .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .score-value {
+                font-size: 3em;
+            }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Professional Stock Analysis Suite</h1>
+            <p>Advanced Multi-Method Fundamental Analysis Platform</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('valuation')">📊 Valuation Models</button>
+            <button class="nav-tab" onclick="showTab('quality')">🏆 Quality Analysis</button>
+            <button class="nav-tab" onclick="showTab('risk')">⚠️ Risk Assessment</button>
+            <button class="nav-tab" onclick="showTab('sector')">🏭 Sector Analysis</button>
+            <button class="nav-tab" onclick="showTab('results')">📈 Results & Reports</button>
+        </div>
+
+        <!-- Valuation Models Tab -->
+        <div class="tab-content active" id="valuation">
+            <h2 class="section-title">💎 Select Valuation Methods</h2>
+            
+            <div class="analysis-grid">
+                <div class="method-card" onclick="toggleMethod('dcf')">
+                    <div class="method-header">
+                        <div class="method-icon">💰</div>
+                        <div class="method-title">Discounted Cash Flow</div>
+                    </div>
+                    <div class="method-description">Nilai intrinsik berdasarkan proyeksi arus kas masa depan yang didiskon.</div>
+                    <div class="method-formula">NPV = Σ FCF/(1+WACC)^t + Terminal Value</div>
+                    <div class="method-complexity">Complexity: <span class="complexity-stars">★★★☆☆</span></div>
+                    <div class="method-best-for">✅ Best for: Portfolio risk management</div>
+                </div>
+
+                <div class="method-card" onclick="toggleMethod('liquidity')">
+                    <div class="method-header">
+                        <div class="method-icon">💧</div>
+                        <div class="method-title">Liquidity Analysis</div>
+                    </div>
+                    <div class="method-description">Current, Quick, dan Cash ratios untuk likuiditas jangka pendek.</div>
+                    <div class="method-formula">Current Ratio = Current Assets / Current Liabilities</div>
+                    <div class="method-complexity">Complexity: <span class="complexity-stars">★★☆☆☆</span></div>
+                    <div class="method-best-for">✅ Best for: Short-term financial health</div>
+                </div>
+
+                <div class="method-card" onclick="toggleMethod('leverage')">
+                    <div class="method-header">
+                        <div class="method-icon">⚖️</div>
+                        <div class="method-title">Leverage Analysis</div>
+                    </div>
+                    <div class="method-description">Debt ratios dan interest coverage untuk risiko finansial.</div>
+                    <div class="method-formula">D/E = Total Debt / Total Equity</div>
+                    <div class="method-complexity">Complexity: <span class="complexity-stars">★★☆☆☆</span></div>
+                    <div class="method-best-for">✅ Best for: Financial leverage assessment</div>
+                </div>
+
+                <div class="method-card" onclick="toggleMethod('volatility')">
+                    <div class="method-header">
+                        <div class="method-icon">📈</div>
+                        <div class="method-title">Earnings Volatility</div>
+                    </div>
+                    <div class="method-description">Konsistensi dan predictability earnings historis.</div>
+                    <div class="method-formula">CV = σ(earnings) / μ(earnings)</div>
+                    <div class="method-complexity">Complexity: <span class="complexity-stars">★★★☆☆</span></div>
+                    <div class="method-best-for">✅ Best for: Earnings quality assessment</div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <button class="btn btn-primary" onclick="showTab('sector')">Next: Sector Analysis →</button>
+            </div>
+        </div>
+
+        <!-- Sector Analysis Tab -->
+        <div class="tab-content" id="sector">
+            <h2 class="section-title">🏭 Select Industry-Specific Analysis</h2>
+            
+            <div class="input-group" style="max-width: 400px; margin: 0 auto 30px;">
+                <label>Select Industry Sector</label>
+                <select id="sectorSelect" onchange="updateSectorMethods()">
+                    <option value="">Choose Sector...</option>
+                    <option value="banking">🏦 Banking & Financial</option>
+                    <option value="telecom">📡 Telecommunications</option>
+                    <option value="mining">⛏️ Mining & Resources</option>
+                    <option value="reit">🏠 Real Estate (REIT)</option>
+                    <option value="consumer">🛍️ Consumer Goods</option>
+                    <option value="energy">⚡ Energy & Utilities</option>
+                    <option value="tech">💻 Technology</option>
+                    <option value="healthcare">🏥 Healthcare</option>
+                </select>
+            </div>
+            
+            <div class="analysis-grid" id="sectorMethods">
+                <div class="method-card" style="text-align: center; color: #7f8c8d;">
+                    <div style="font-size: 3em; margin: 40px 0;">🏭</div>
+                    <h3>Select an Industry Sector</h3>
+                    <p>Choose your sector above to see specialized analysis methods</p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <button class="btn btn-success" onclick="showInputSection()">Start Analysis →</button>
+            </div>
+        </div>
+
+        <!-- Results Tab -->
+        <div class="tab-content" id="results">
+            <div class="selected-methods" id="selectedMethodsDisplay" style="display: none;">
+                <h3>📋 Selected Analysis Methods:</h3>
+                <div id="methodTags"></div>
+            </div>
+
+            <!-- Input Section -->
+            <div class="input-section" id="inputSection" style="display: none;">
+                <h2 class="section-title">📊 Input Financial Data</h2>
+                
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label>Stock Name / Ticker
+                            <span class="input-tooltip" data-tooltip="Enter stock symbol (e.g., BBCA, BMRI)">?</span>
+                        </label>
+                        <input type="text" id="stockName" placeholder="BBCA">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Current Stock Price (Rp)
+                            <span class="input-tooltip" data-tooltip="Latest closing price">?</span>
+                        </label>
+                        <input type="number" id="currentPrice" placeholder="8750">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Market Capitalization (Billion Rp)
+                            <span class="input-tooltip" data-tooltip="Total market value of shares">?</span>
+                        </label>
+                        <input type="number" id="marketCap" placeholder="850000">
+                    </div>
+                </div>
+
+                <div id="dynamicInputs"></div>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <button class="btn btn-warning" onclick="loadDemoData()">📋 Load Demo Data</button>
+                    <button class="btn btn-success" onclick="startAnalysis()">🚀 Start Analysis</button>
+                </div>
+            </div>
+
+            <!-- Loading Animation -->
+            <div class="loading" id="loadingSection">
+                <div class="spinner"></div>
+                <h3>🔍 Analyzing Financial Data...</h3>
+                <p>Running comprehensive fundamental analysis</p>
+            </div>
+
+            <!-- Analysis Results -->
+            <div class="results-section" id="analysisResults" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedMethods = [];
+        let analysisData = {};
+        let currentSector = '';
+
+        const sectorSpecificMethods = {
+            banking: [
+                { id: 'bank_ratios', name: 'Banking Ratios', icon: '🏦', description: 'NIM, ROA, NPL, CAR analysis' },
+                { id: 'credit_risk', name: 'Credit Risk Analysis', icon: '💳', description: 'Loan quality and provisions' }
+            ],
+            telecom: [
+                { id: 'arpu', name: 'ARPU Analysis', icon: '📱', description: 'Average Revenue Per User metrics' },
+                { id: 'subscriber', name: 'Subscriber Analysis', icon: '📡', description: 'User growth and churn rates' }
+            ],
+            mining: [
+                { id: 'commodity', name: 'Commodity Analysis', icon: '⛏️', description: 'Resource reserves and production costs' },
+                { id: 'cycle', name: 'Cycle Analysis', icon: '🔄', description: 'Commodity price cycle impact' }
+            ],
+            reit: [
+                { id: 'ffo', name: 'FFO Analysis', icon: '🏠', description: 'Funds From Operations metrics' },
+                { id: 'occupancy', name: 'Occupancy Analysis', icon: '🏢', description: 'Property utilization rates' }
+            ],
+            consumer: [
+                { id: 'brand', name: 'Brand Strength', icon: '🏷️', description: 'Brand value and market share' },
+                { id: 'retail', name: 'Retail Metrics', icon: '🛍️', description: 'Same-store sales growth' }
+            ],
+            energy: [
+                { id: 'reserves', name: 'Reserve Analysis', icon: '⛽', description: 'Energy reserves and replacement' },
+                { id: 'capex', name: 'CapEx Analysis', icon: '🔧', description: 'Capital expenditure efficiency' }
+            ],
+            tech: [
+                { id: 'saas', name: 'SaaS Metrics', icon: '💻', description: 'ARR, churn, LTV analysis' },
+                { id: 'innovation', name: 'R&D Analysis', icon: '🚀', description: 'Innovation and patent portfolio' }
+            ],
+            healthcare: [
+                { id: 'pipeline', name: 'Drug Pipeline', icon: '💊', description: 'R&D pipeline valuation' },
+                { id: 'regulatory', name: 'Regulatory Risk', icon: '📋', description: 'FDA approval probabilities' }
+            ]
+        };
+
+        const methodInputs = {
+            // Valuation methods
+            dcf: [
+                { id: 'fcf1', label: 'Free Cash Flow Year 1 (Billion)', tooltip: 'Projected FCF for next year' },
+                { id: 'fcf2', label: 'Free Cash Flow Year 2 (Billion)', tooltip: 'Projected FCF for year 2' },
+                { id: 'fcf3', label: 'Free Cash Flow Year 3 (Billion)', tooltip: 'Projected FCF for year 3' },
+                { id: 'fcf4', label: 'Free Cash Flow Year 4 (Billion)', tooltip: 'Projected FCF for year 4' },
+                { id: 'fcf5', label: 'Free Cash Flow Year 5 (Billion)', tooltip: 'Projected FCF for year 5' },
+                { id: 'terminalGrowth', label: 'Terminal Growth Rate (%)', tooltip: 'Long-term growth rate (2-4%)' },
+                { id: 'wacc', label: 'WACC / Discount Rate (%)', tooltip: 'Weighted Average Cost of Capital' }
+            ],
+            fcfe: [
+                { id: 'fcfe1', label: 'FCFE Year 1 (Billion)', tooltip: 'Free Cash Flow to Equity' },
+                { id: 'fcfe2', label: 'FCFE Year 2 (Billion)', tooltip: 'Free Cash Flow to Equity' },
+                { id: 'fcfe3', label: 'FCFE Year 3 (Billion)', tooltip: 'Free Cash Flow to Equity' },
+                { id: 'equityCost', label: 'Cost of Equity (%)', tooltip: 'Required return on equity' },
+                { id: 'fcfeGrowth', label: 'FCFE Growth Rate (%)', tooltip: 'Long-term FCFE growth' }
+            ],
+            residual: [
+                { id: 'netIncome', label: 'Net Income (Billion)', tooltip: 'Current year net income' },
+                { id: 'bookValue', label: 'Book Value (Billion)', tooltip: 'Total shareholders equity' },
+                { id: 'costOfEquity', label: 'Cost of Equity (%)', tooltip: 'Required return rate' },
+                { id: 'riGrowth', label: 'RI Growth Rate (%)', tooltip: 'Residual income growth' }
+            ],
+            graham: [
+                { id: 'eps', label: 'Earnings Per Share', tooltip: 'Current EPS' },
+                { id: 'bvps', label: 'Book Value Per Share', tooltip: 'Book value per share' }
+            ],
+            dividend: [
+                { id: 'dividend', label: 'Annual Dividend Per Share', tooltip: 'Current annual dividend' },
+                { id: 'dividendGrowth', label: 'Dividend Growth Rate (%)', tooltip: 'Historical dividend growth' },
+                { id: 'requiredReturn', label: 'Required Return (%)', tooltip: 'Expected return rate' }
+            ],
+            asset: [
+                { id: 'totalAssets', label: 'Total Assets (Billion)', tooltip: 'Book value of total assets' },
+                { id: 'totalLiabilities', label: 'Total Liabilities (Billion)', tooltip: 'Total liabilities' },
+                { id: 'assetMultiplier', label: 'Asset Multiplier', tooltip: 'Market-to-book asset ratio' }
+            ],
+            // Quality methods
+            piotroski: [
+                { id: 'netIncome', label: 'Net Income (Billion)', tooltip: 'Current net income' },
+                { id: 'operatingCF', label: 'Operating Cash Flow (Billion)', tooltip: 'Cash from operations' },
+                { id: 'roa', label: 'ROA (%)', tooltip: 'Return on Assets current year' },
+                { id: 'roaPrev', label: 'ROA Previous Year (%)', tooltip: 'Previous year ROA' },
+                { id: 'debtRatio', label: 'Debt Ratio', tooltip: 'Total debt / Total assets' },
+                { id: 'debtRatioPrev', label: 'Debt Ratio Previous Year', tooltip: 'Previous year debt ratio' },
+                { id: 'currentRatio', label: 'Current Ratio', tooltip: 'Current assets / Current liabilities' },
+                { id: 'currentRatioPrev', label: 'Current Ratio Previous Year', tooltip: 'Previous year current ratio' },
+                { id: 'sharesOutstanding', label: 'Shares Outstanding (Million)', tooltip: 'Current shares outstanding' },
+                { id: 'sharesOutstandingPrev', label: 'Shares Outstanding Prev Year (Million)', tooltip: 'Previous year shares' },
+                { id: 'grossMargin', label: 'Gross Margin (%)', tooltip: 'Current gross margin' },
+                { id: 'grossMarginPrev', label: 'Gross Margin Previous Year (%)', tooltip: 'Previous year gross margin' },
+                { id: 'assetTurnover', label: 'Asset Turnover', tooltip: 'Revenue / Average total assets' },
+                { id: 'assetTurnoverPrev', label: 'Asset Turnover Previous Year', tooltip: 'Previous year asset turnover' }
+            ],
+            altman: [
+                { id: 'workingCapital', label: 'Working Capital (Billion)', tooltip: 'Current assets - Current liabilities' },
+                { id: 'totalAssets', label: 'Total Assets (Billion)', tooltip: 'Total assets' },
+                { id: 'retainedEarnings', label: 'Retained Earnings (Billion)', tooltip: 'Accumulated retained earnings' },
+                { id: 'ebit', label: 'EBIT (Billion)', tooltip: 'Earnings before interest and tax' },
+                { id: 'marketCap', label: 'Market Capitalization (Billion)', tooltip: 'Market value of equity' },
+                { id: 'totalLiabilities', label: 'Total Liabilities (Billion)', tooltip: 'Total liabilities' },
+                { id: 'sales', label: 'Sales/Revenue (Billion)', tooltip: 'Total revenue' }
+            ],
+            roe_analysis: [
+                { id: 'netIncome', label: 'Net Income (Billion)', tooltip: 'Net income' },
+                { id: 'revenue', label: 'Revenue (Billion)', tooltip: 'Total revenue' },
+                { id: 'totalAssets', label: 'Total Assets (Billion)', tooltip: 'Total assets' },
+                { id: 'shareholders equity', label: 'Shareholders Equity (Billion)', tooltip: 'Total shareholders equity' }
+            ],
+            roic: [
+                { id: 'nopat', label: 'NOPAT (Billion)', tooltip: 'Net Operating Profit After Tax' },
+                { id: 'investedCapital', label: 'Invested Capital (Billion)', tooltip: 'Total invested capital' },
+                { id: 'wacc', label: 'WACC (%)', tooltip: 'Weighted Average Cost of Capital' }
+            ],
+            // Risk methods
+            beta: [
+                { id: 'stockReturns', label: 'Stock Returns (JSON Array)', tooltip: 'Monthly returns: [0.05, -0.02, 0.03, ...]' },
+                { id: 'marketReturns', label: 'Market Returns (JSON Array)', tooltip: 'Market monthly returns: [0.04, -0.01, 0.02, ...]' },
+                { id: 'riskFreeRate', label: 'Risk-Free Rate (%)', tooltip: 'Government bond yield' }
+            ],
+            liquidity: [
+                { id: 'currentAssets', label: 'Current Assets (Billion)', tooltip: 'Assets convertible within 1 year' },
+                { id: 'currentLiabilities', label: 'Current Liabilities (Billion)', tooltip: 'Liabilities due within 1 year' },
+                { id: 'inventory', label: 'Inventory (Billion)', tooltip: 'Inventory value' },
+                { id: 'cashEquivalents', label: 'Cash & Equivalents (Billion)', tooltip: 'Cash and short-term investments' }
+            ],
+            leverage: [
+                { id: 'totalDebt', label: 'Total Debt (Billion)', tooltip: 'Short-term + Long-term debt' },
+                { id: 'totalEquity', label: 'Total Equity (Billion)', tooltip: 'Shareholders equity' },
+                { id: 'ebit', label: 'EBIT (Billion)', tooltip: 'Earnings before interest and tax' },
+                { id: 'interestExpense', label: 'Interest Expense (Billion)', tooltip: 'Annual interest payments' }
+            ],
+            volatility: [
+                { id: 'earnings5y', label: 'Earnings 5-Year Data (JSON)', tooltip: 'Annual earnings: [100, 120, 110, 130, 125]' },
+                { id: 'revenue5y', label: 'Revenue 5-Year Data (JSON)', tooltip: 'Annual revenue: [1000, 1100, 1050, 1200, 1150]' }
+            ]
+        };
+
+        function showTab(tabName) {
+            // Hide all tab contents and remove active class from tabs
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab content and mark tab as active
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function toggleMethod(method) {
+            const card = event.currentTarget;
+            const index = selectedMethods.indexOf(method);
+            
+            if (index > -1) {
+                selectedMethods.splice(index, 1);
+                card.classList.remove('selected');
+            } else {
+                selectedMethods.push(method);
+                card.classList.add('selected');
+            }
+
+            updateMethodDisplay();
+        }
+
+        function updateSectorMethods() {
+            const sector = document.getElementById('sectorSelect').value;
+            const methodsContainer = document.getElementById('sectorMethods');
+            
+            if (!sector) {
+                methodsContainer.innerHTML = `
+                    <div class="method-card" style="text-align: center; color: #7f8c8d;">
+                        <div style="font-size: 3em; margin: 40px 0;">🏭</div>
+                        <h3>Select an Industry Sector</h3>
+                        <p>Choose your sector above to see specialized analysis methods</p>
+                    </div>
+                `;
+                return;
+            }
+
+            currentSector = sector;
+            const methods = sectorSpecificMethods[sector] || [];
+            
+            methodsContainer.innerHTML = methods.map(method => `
+                <div class="method-card" onclick="toggleMethod('${method.id}')">
+                    <div class="method-header">
+                        <div class="method-icon">${method.icon}</div>
+                        <div class="method-title">${method.name}</div>
+                    </div>
+                    <div class="method-description">${method.description}</div>
+                    <div class="method-complexity">Complexity: <span class="complexity-stars">★★★☆☆</span></div>
+                    <div class="method-best-for">✅ Industry-specific analysis</div>
+                </div>
+            `).join('');
+        }
+
+        function updateMethodDisplay() {
+            const display = document.getElementById('selectedMethodsDisplay');
+            const tagsContainer = document.getElementById('methodTags');
+            
+            if (selectedMethods.length === 0) {
+                display.style.display = 'none';
+                return;
+            }
+
+            display.style.display = 'block';
+            
+            const methodNames = {
+                // Valuation
+                dcf: 'Discounted Cash Flow',
+                fcfe: 'Free Cash Flow to Equity',
+                residual: 'Residual Income Model',
+                graham: 'Benjamin Graham Formula',
+                dividend: 'Dividend Discount Model',
+                asset: 'Asset-Based Valuation',
+                // Quality
+                piotroski: 'Piotroski F-Score',
+                altman: 'Altman Z-Score',
+                roe_analysis: 'ROE Decomposition',
+                roic: 'ROIC Analysis',
+                // Risk
+                beta: 'Beta & Market Risk',
+                liquidity: 'Liquidity Analysis',
+                leverage: 'Leverage Analysis',
+                volatility: 'Earnings Volatility'
+            };
+
+            tagsContainer.innerHTML = selectedMethods.map(method => `
+                <span class="method-tag">
+                    ${methodNames[method] || method}
+                    <span class="remove-tag" onclick="removeMethod('${method}')">×</span>
+                </span>
+            `).join('');
+        }
+
+        function removeMethod(method) {
+            event.stopPropagation();
+            const index = selectedMethods.indexOf(method);
+            if (index > -1) {
+                selectedMethods.splice(index, 1);
+                // Remove visual selection from card
+                document.querySelectorAll('.method-card').forEach(card => {
+                    if (card.getAttribute('onclick').includes(method)) {
+                        card.classList.remove('selected');
+                    }
+                });
+                updateMethodDisplay();
+            }
+        }
+
+        function showInputSection() {
+            if (selectedMethods.length === 0) {
+                alert('Please select at least one analysis method first!');
+                return;
+            }
+            
+            showTab('results');
+            setupDynamicInputs();
+            document.getElementById('inputSection').style.display = 'block';
+        }
+
+        function setupDynamicInputs() {
+            updateMethodDisplay();
+            
+            const dynamicInputs = document.getElementById('dynamicInputs');
+            dynamicInputs.innerHTML = '';
+
+            const allInputs = new Map();
+            
+            selectedMethods.forEach(method => {
+                if (methodInputs[method]) {
+                    methodInputs[method].forEach(input => {
+                        if (!allInputs.has(input.id)) {
+                            allInputs.set(input.id, input);
+                        }
+                    });
+                }
+            });
+
+            if (allInputs.size > 0) {
+                const gridDiv = document.createElement('div');
+                gridDiv.className = 'input-grid';
+                gridDiv.style.marginTop = '30px';
+                
+                allInputs.forEach(input => {
+                    const inputGroup = document.createElement('div');
+                    inputGroup.className = 'input-group';
+                    inputGroup.innerHTML = `
+                        <label>${input.label}
+                            <span class="input-tooltip" data-tooltip="${input.tooltip}">?</span>
+                        </label>
+                        <input type="number" id="${input.id}" step="0.01" placeholder="0">
+                    `;
+                    gridDiv.appendChild(inputGroup);
+                });
+                
+                dynamicInputs.appendChild(gridDiv);
+            }
+        }
+
+        function loadDemoData() {
+            // Load sample data for BBCA
+            document.getElementById('stockName').value = 'BBCA';
+            document.getElementById('currentPrice').value = 8750;
+            document.getElementById('marketCap').value = 854000;
+            
+            // Sample financial data
+            const sampleData = {
+                // DCF data
+                fcf1: 45000, fcf2: 48000, fcf3: 51000, fcf4: 54000, fcf5: 57000,
+                terminalGrowth: 3, wacc: 10,
+                // Graham data
+                eps: 1284, bvps: 3247,
+                // Other common data
+                netIncome: 31043, revenue: 75047, totalAssets: 1020000,
+                operatingCF: 35000, roa: 3.2, currentRatio: 1.1,
+                totalDebt: 150000, totalEquity: 194000,
+                dividend: 156, dividendGrowth: 8, requiredReturn: 12
+            };
+
+            Object.keys(sampleData).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = sampleData[key];
+                }
+            });
+        }
+
+        function startAnalysis() {
+            // Collect input data
+            analysisData = {
+                stockName: document.getElementById('stockName').value || 'Stock Analysis',
+                currentPrice: parseFloat(document.getElementById('currentPrice').value) || 0,
+                marketCap: parseFloat(document.getElementById('marketCap').value) || 0
+            };
+
+            // Collect dynamic inputs
+            document.querySelectorAll('#dynamicInputs input').forEach(input => {
+                const value = parseFloat(input.value) || 0;
+                if (value !== 0) {
+                    analysisData[input.id] = value;
+                }
+            });
+
+            if (!analysisData.currentPrice) {
+                alert('Please enter the current stock price to continue!');
+                return;
+            }
+
+            // Show loading animation
+            document.getElementById('inputSection').style.display = 'none';
+            document.getElementById('loadingSection').style.display = 'block';
+
+            // Simulate analysis delay
+            setTimeout(() => {
+                performComprehensiveAnalysis();
+                document.getElementById('loadingSection').style.display = 'none';
+                document.getElementById('analysisResults').style.display = 'block';
+            }, 3000);
+        }
+
+        function performComprehensiveAnalysis() {
+            const results = document.getElementById('analysisResults');
+            let analysisHTML = '';
+            let totalScore = 0;
+            let methodCount = 0;
+            let scenarios = { bull: 0, base: 0, bear: 0 };
+
+            // Generate analysis for each selected method
+            selectedMethods.forEach(method => {
+                const result = calculateAdvancedMethod(method);
+                if (result) {
+                    analysisHTML += result.html;
+                    totalScore += result.score;
+                    methodCount++;
+                    
+                    // Add to scenario analysis
+                    scenarios.bull += result.bullCase || result.score;
+                    scenarios.base += result.score;
+                    scenarios.bear += result.bearCase || Math.max(0, result.score - 20);
+                }
+            });
+
+            const finalScore = methodCount > 0 ? Math.round(totalScore / methodCount) : 0;
+            scenarios.bull = Math.min(100, Math.round(scenarios.bull / methodCount * 1.2));
+            scenarios.base = finalScore;
+            scenarios.bear = Math.max(0, Math.round(scenarios.bear / methodCount));
+
+            // Add scenario analysis
+            analysisHTML += generateScenarioAnalysis(scenarios);
+            
+            // Add final comprehensive score
+            analysisHTML += generateFinalScore(finalScore, methodCount);
+            
+            // Add risk assessment
+            analysisHTML += generateRiskAssessment(finalScore);
+
+            results.innerHTML = analysisHTML;
+        }
+
+        function calculateAdvancedMethod(method) {
+            switch(method) {
+                case 'dcf':
+                    return calculateAdvancedDCF();
+                case 'fcfe':
+                    return calculateFCFE();
+                case 'residual':
+                    return calculateResidualIncome();
+                case 'graham':
+                    return calculateGrahamAdvanced();
+                case 'dividend':
+                    return calculateDividendAdvanced();
+                case 'asset':
+                    return calculateAssetBased();
+                case 'piotroski':
+                    return calculatePiotroskiScore();
+                case 'altman':
+                    return calculateAltmanZScore();
+                case 'roe_analysis':
+                    return calculateROEAnalysis();
+                case 'roic':
+                    return calculateROICAnalysis();
+                case 'beta':
+                    return calculateBetaAnalysis();
+                case 'liquidity':
+                    return calculateLiquidityAnalysis();
+                case 'leverage':
+                    return calculateLeverageAnalysis();
+                case 'volatility':
+                    return calculateVolatilityAnalysis();
+                default:
+                    return null;
+            }
+        }
+
+        function calculateAdvancedDCF() {
+            const { fcf1, fcf2, fcf3, fcf4, fcf5, terminalGrowth, wacc, currentPrice } = analysisData;
+            
+            if (!fcf1 || !wacc) return null;
+            
+            const r = wacc / 100;
+            const g = terminalGrowth / 100;
+            
+            // Present value of explicit forecast period
+            const pv1 = fcf1 / Math.pow(1 + r, 1);
+            const pv2 = fcf2 / Math.pow(1 + r, 2);
+            const pv3 = fcf3 / Math.pow(1 + r, 3);
+            const pv4 = fcf4 / Math.pow(1 + r, 4);
+            const pv5 = fcf5 / Math.pow(1 + r, 5);
+            
+            // Terminal value
+            const terminalValue = (fcf5 * (1 + g)) / (r - g);
+            const pvTerminal = terminalValue / Math.pow(1 + r, 5);
+            
+            const enterpriseValue = pv1 + pv2 + pv3 + pv4 + pv5 + pvTerminal;
+            const equityValue = enterpriseValue; // Assuming no net debt for simplicity
+            const intrinsicValue = equityValue / (analysisData.marketCap / currentPrice); // Per share
+            
+            const margin = ((intrinsicValue - currentPrice) / intrinsicValue) * 100;
+            
+            let score = 0;
+            if (margin > 40) score = 95;
+            else if (margin > 30) score = 90;
+            else if (margin > 20) score = 80;
+            else if (margin > 10) score = 70;
+            else if (margin > 0) score = 60;
+            else if (margin > -10) score = 40;
+            else score = 20;
+
+            const valueClass = margin > 20 ? 'excellent' : margin > 0 ? 'good' : 'poor';
+            
+            return {
+                html: `
+                    <div class="analysis-card">
+                        <div class="analysis-header">
+                            <div class="analysis-icon">💰</div>
+                            <div class="analysis-title">Advanced DCF Analysis</div>
+                        </div>
+                        <div class="analysis-value ${valueClass}">Rp ${formatNumber(intrinsicValue)}</div>
+                        <div class="analysis-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Enterprise Value</div>
+                                <div class="detail-value">Rp ${formatNumber(enterpriseValue)} B</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Terminal Value</div>
+                                <div class="detail-value">Rp ${formatNumber(terminalValue)} B</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">WACC Used</div>
+                                <div class="detail-value">${wacc}%</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Margin of Safety</div>
+                                <div class="detail-value">${margin > 0 ? '+' : ''}${margin.toFixed(1)}%</div>
+                            </div>
+                        </div>
+                        <div class="recommendation ${margin > 20 ? 'buy' : margin > 0 ? 'hold' : 'sell'}">
+                            ${margin > 30 ? '🟢 STRONG BUY - Significantly undervalued' : 
+                              margin > 10 ? '🟡 BUY - Good upside potential' : 
+                              margin > 0 ? '🟠 HOLD - Fair value range' :
+                              '🔴 SELL - Overvalued'}
+                        </div>
+                    </div>
+                `,
+                score,
+                bullCase: Math.min(100, score + 15),
+                bearCase: Math.max(0, score - 25)
+            };
+        }
+
+        function calculatePiotroskiScore() {
+            const data = analysisData;
+            let fscore = 0;
+            let details = [];
+
+            // Profitability (4 points)
+            if (data.netIncome > 0) { fscore++; details.push('✅ Positive Net Income'); }
+            else { details.push('❌ Negative Net Income'); }
+
+            if (data.operatingCF > 0) { fscore++; details.push('✅ Positive Operating Cash Flow'); }
+            else { details.push('❌ Negative Operating Cash Flow'); }
+
+            if (data.roa > (data.roaPrev || 0)) { fscore++; details.push('✅ Improving ROA'); }
+            else { details.push('❌ Declining ROA'); }
+
+            if (data.operatingCF > data.netIncome) { fscore++; details.push('✅ Quality of Earnings'); }
+            else { details.push('❌ Poor Quality of Earnings'); }
+
+            // Leverage & Liquidity (3 points)
+            if ((data.debtRatio || 0) < (data.debtRatioPrev || 1)) { fscore++; details.push('✅ Decreasing Debt'); }
+            else { details.push('❌ Increasing Debt'); }
+
+            if ((data.currentRatio || 0) > (data.currentRatioPrev || 0)) { fscore++; details.push('✅ Improving Liquidity'); }
+            else { details.push('❌ Declining Liquidity'); }
+
+            if ((data.sharesOutstanding || 0) <= (data.sharesOutstandingPrev || 0)) { fscore++; details.push('✅ No Share Dilution'); }
+            else { details.push('❌ Share Dilution'); }
+
+            // Operating Efficiency (2 points)
+            if ((data.grossMargin || 0) > (data.grossMarginPrev || 0)) { fscore++; details.push('✅ Improving Margins'); }
+            else { details.push('❌ Declining Margins'); }
+
+            if ((data.assetTurnover || 0) > (data.assetTurnoverPrev || 0)) { fscore++; details.push('✅ Improving Efficiency'); }
+            else { details.push('❌ Declining Efficiency'); }
+
+            let score = fscore * 10; // Convert to 100-point scale
+            let recommendation = '';
+            let valueClass = '';
+
+            if (fscore >= 8) {
+                recommendation = '🟢 STRONG BUY - Excellent fundamental strength';
+                valueClass = 'excellent';
+            } else if (fscore >= 6) {
+                recommendation = '🟡 BUY - Good fundamental quality';
+                valueClass = 'good';
+            } else if (fscore >= 4) {
+                recommendation = '🟠 HOLD - Average fundamental quality';
+                valueClass = 'fair';
+            } else {
+                recommendation = '🔴 AVOID - Poor fundamental quality';
+                valueClass = 'poor';
+            }
+
+            return {
+                html: `
+                    <div class="analysis-card">
+                        <div class="analysis-header">
+                            <div class="analysis-icon">🎯</div>
+                            <div class="analysis-title">Piotroski F-Score Analysis</div>
+                        </div>
+                        <div class="analysis-value ${valueClass}">${fscore}/9</div>
+                        <div class="analysis-details">
+                            <div style="grid-column: 1 / -1; padding: 15px; background: rgba(255,255,255,0.5); border-radius: 8px;">
+                                ${details.map(detail => `<div style="margin: 5px 0;">${detail}</div>`).join('')}
+                            </div>
+                        </div>
+                        <div class="recommendation ${fscore >= 6 ? 'buy' : fscore >= 4 ? 'hold' : 'sell'}">
+                            ${recommendation}
+                        </div>
+                    </div>
+                `,
+                score,
+                bullCase: Math.min(100, score + 10),
+                bearCase: Math.max(0, score - 15)
+            };
+        }
+
+        function calculateAltmanZScore() {
+            const { workingCapital, totalAssets, retainedEarnings, ebit, marketCap, totalLiabilities, sales } = analysisData;
+            
+            if (!totalAssets) return null;
+
+            const A = (workingCapital || 0) / totalAssets;
+            const B = (retainedEarnings || 0) / totalAssets;
+            const C = (ebit || 0) / totalAssets;
+            const D = (marketCap || 0) / (totalLiabilities || 1);
+            const E = (sales || 0) / totalAssets;
+
+            const zScore = 1.2 * A + 1.4 * B + 3.3 * C + 0.6 * D + 1.0 * E;
+            
+            let interpretation = '';
+            let score = 0;
+            let valueClass = '';
+
+            if (zScore > 2.99) {
+                interpretation = '🟢 SAFE ZONE - Very low bankruptcy risk';
+                score = 90;
+                valueClass = 'excellent';
+            } else if (zScore > 1.8) {
+                interpretation = '🟡 GREY ZONE - Moderate risk, needs monitoring';
+                score = 60;
+                valueClass = 'good';
+            } else {
+                interpretation = '🔴 DISTRESS ZONE - High bankruptcy risk';
+                score = 20;
+                valueClass = 'poor';
+            }
+
+            return {
+                html: `
+                    <div class="analysis-card">
+                        <div class="analysis-header">
+                            <div class="analysis-icon">⚡</div>
+                            <div class="analysis-title">Altman Z-Score Analysis</div>
+                        </div>
+                        <div class="analysis-value ${valueClass}">${zScore.toFixed(2)}</div>
+                        <div class="analysis-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Working Capital/Total Assets</div>
+                                <div class="detail-value">${(A * 100).toFixed(1)}%</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Retained Earnings/Total Assets</div>
+                                <div class="detail-value">${(B * 100).toFixed(1)}%</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">EBIT/Total Assets</div>
+                                <div class="detail-value">${(C * 100).toFixed(1)}%</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Market Cap/Total Liabilities</div>
+                                <div class="detail-value">${D.toFixed(2)}x</div>
+                            </div>
+                        </div>
+                        <div class="recommendation ${zScore > 2.99 ? 'buy' : zScore > 1.8 ? 'hold' : 'sell'}">
+                            ${interpretation}
+                        </div>
+                    </div>
+                `,
+                score,
+                bullCase: Math.min(100, score + 10),
+                bearCase: Math.max(0, score - 20)
+            };
+        }
+
+        function calculateROEAnalysis() {
+            const { netIncome, revenue, totalAssets, shareholdersEquity } = analysisData;
+            
+            if (!revenue || !totalAssets || !shareholdersEquity) return null;
+
+            const profitMargin = (netIncome / revenue) * 100;
+            const assetTurnover = revenue / totalAssets;
+            const equityMultiplier = totalAssets / shareholdersEquity;
+            const roe = (netIncome / shareholdersEquity) * 100;
+
+            let score = 0;
+            if (roe > 20) score = 95;
+            else if (roe > 15) score = 85;
+            else if (roe > 10) score = 70;
+            else if (roe > 5) score = 50;
+            else score = 25;
+
+            const valueClass = roe > 15 ? 'excellent' : roe > 10 ? 'good' : roe > 5 ? 'fair' : 'poor';
+
+            return {
+                html: `
+                    <div class="analysis-card">
+                        <div class="analysis-header">
+                            <div class="analysis-icon">⚡</div>
+                            <div class="analysis-title">ROE DuPont Analysis</div>
+                        </div>
+                        <div class="analysis-value ${valueClass}">${roe.toFixed(1)}%</div>
+                        <div class="analysis-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Profit Margin</div>
+                                <div class="detail-value">${profitMargin.toFixed(1)}%</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Asset Turnover</div>
+                                <div class="detail-value">${assetTurnover.toFixed(2)}x</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Equity Multiplier</div>
+                                <div class="detail-value">${equityMultiplier.toFixed(2)}x</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">ROE Formula</div>
+                                <div class="detail-value">${profitMargin.toFixed(1)}% × ${assetTurnover.toFixed(2)} × ${equityMultiplier.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div class="recommendation ${roe > 15 ? 'buy' : roe > 10 ? 'hold' : 'sell'}">
+                            ${roe > 20 ? '🟢 EXCELLENT - Superior management efficiency' :
+                              roe > 15 ? '🟡 GOOD - Above-average returns' :
+                              roe > 10 ? '🟠 FAIR - Adequate performance' :
+                              '🔴 POOR - Below-average returns'}
+                        </div>
+                    </div>
+                `,
+                score,
+                bullCase: Math.min(100, score + 10),
+                bearCase: Math.max(0, score - 15)
+            };
+        }
+
+        function calculateLiquidityAnalysis() {
+            const { currentAssets, currentLiabilities, inventory, cashEquivalents } = analysisData;
+            
+            if (!currentAssets || !currentLiabilities) return null;
+
+            const currentRatio = currentAssets / currentLiabilities;
+            const quickRatio = (currentAssets - (inventory || 0)) / currentLiabilities;
+            const cashRatio = (cashEquivalents || 0) / currentLiabilities;
+
+            let score = 0;
+            if (currentRatio > 2 && quickRatio > 1.5) score = 95;
+            else if (currentRatio > 1.5 && quickRatio > 1) score = 80;
+            else if (currentRatio > 1.2 && quickRatio > 0.8) score = 65;
+            else if (currentRatio > 1) score = 50;
+            else score = 20;
+
+            const valueClass = currentRatio > 1.5 ? 'excellent' : currentRatio > 1.2 ? 'good' : currentRatio > 1 ? 'fair' : 'poor';
+
+            return {
+                html: `
+                    <div class="analysis-card">
+                        <div class="analysis-header">
+                            <div class="analysis-icon">💧</div>
+                            <div class="analysis-title">Liquidity Analysis</div>
+                        </div>
+                        <div class="analysis-value ${valueClass}">${currentRatio.toFixed(2)}x</div>
+                        <div class="analysis-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Current Ratio</div>
+                                <div class="detail-value">${currentRatio.toFixed(2)}x</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Quick Ratio</div>
+                                <div class="detail-value">${quickRatio.toFixed(2)}x</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Cash Ratio</div>
+                                <div class="detail-value">${cashRatio.toFixed(2)}x</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Liquidity Grade</div>
+                                <div class="detail-value">${currentRatio > 2 ? 'A+' : currentRatio > 1.5 ? 'A' : currentRatio > 1.2 ? 'B' : currentRatio > 1 ? 'C' : 'D'}</div>
+                            </div>
+                        </div>
+                        <div class="recommendation ${currentRatio > 1.5 ? 'buy' : currentRatio > 1.2 ? 'hold' : 'sell'}">
+                            ${currentRatio > 2 ? '🟢 EXCELLENT - Very strong liquidity position' :
+                              currentRatio > 1.5 ? '🟡 GOOD - Adequate liquidity' :
+                              currentRatio > 1.2 ? '🟠 FAIR - Acceptable liquidity' :
+                              currentRatio > 1 ? '🟠 CAUTION - Tight liquidity' :
+                              '🔴 RISK - Liquidity concerns'}
+                        </div>
+                    </div>
+                `,
+                score,
+                bullCase: Math.min(100, score + 5),
+                bearCase: Math.max(0, score - 20)
+            };
+        }
+
+        function generateScenarioAnalysis(scenarios) {
+            return `
+                <div class="scenario-analysis">
+                    <h2>📊 Scenario Analysis</h2>
+                    <div class="scenario-grid">
+                        <div class="scenario-card">
+                            <h3>🐻 Bear Case</h3>
+                            <div class="score-value" style="font-size: 2em;">${scenarios.bear}</div>
+                            <p>Conservative estimate assuming negative market conditions</p>
+                        </div>
+                        <div class="scenario-card">
+                            <h3>⚖️ Base Case</h3>
+                            <div class="score-value" style="font-size: 2em;">${scenarios.base}</div>
+                            <p>Most likely outcome based on current fundamentals</p>
+                        </div>
+                        <div class="scenario-card">
+                            <h3>🐂 Bull Case</h3>
+                            <div class="score-value" style="font-size: 2em;">${scenarios.bull}</div>
+                            <p>Optimistic scenario with favorable conditions</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateFinalScore(score, methodCount) {
+            const grade = score >= 85 ? 'A+' : score >= 80 ? 'A' : score >= 75 ? 'A-' : score >= 70 ? 'B+' : score >= 65 ? 'B' : score >= 60 ? 'B-' : score >= 55 ? 'C+' : score >= 50 ? 'C' : score >= 45 ? 'C-' : score >= 40 ? 'D+' : score >= 35 ? 'D' : 'F';
+            
+            return `
+                <div class="final-score">
+                    <h2>🎯 Comprehensive Investment Score</h2>
+                    <div class="score-value">${score}/100</div>
+                    <div style="font-size: 1.5em; margin: 10px 0;">Grade: ${grade}</div>
+                    <p>${getFinalRecommendation(score)}</p>
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <strong>Methods Used</strong><br>${methodCount}
+                        </div>
+                        <div class="score-item">
+                            <strong>Risk Level</strong><br>${score >= 70 ? 'Low' : score >= 50 ? 'Medium' : 'High'}
+                        </div>
+                        <div class="score-item">
+                            <strong>Confidence</strong><br>${methodCount >= 5 ? 'High' : methodCount >= 3 ? 'Medium' : 'Low'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateRiskAssessment(score) {
+            const riskLevel = score >= 70 ? 20 : score >= 50 ? 50 : 80;
+            
+            return `
+                <div class="analysis-card">
+                    <div class="analysis-header">
+                        <div class="analysis-icon">⚠️</div>
+                        <div class="analysis-title">Risk Assessment</div>
+                    </div>
+                    <div class="risk-meter">
+                        <div class="risk-indicator" style="left: ${riskLevel}%;"></div>
+                    </div>
+                    <div class="analysis-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Overall Risk</div>
+                            <div class="detail-value">${score >= 70 ? 'Low Risk' : score >= 50 ? 'Medium Risk' : 'High Risk'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Investment Horizon</div>
+                            <div class="detail-value">${score >= 70 ? 'Long-term' : score >= 50 ? 'Medium-term' : 'Short-term/Avoid'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Portfolio Weight</div>
+                            <div class="detail-value">${score >= 80 ? '10-15%' : score >= 70 ? '5-10%' : score >= 50 ? '2-5%' : '<2%'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Diversification</div>
+                            <div class="detail-value">${score >= 70 ? 'Core Holding' : score >= 50 ? 'Satellite' : 'Speculative'}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Placeholder functions for other methods
+        function calculateFCFE() {
+            return { html: '<div class="analysis-card"><div class="analysis-title">FCFE Model</div><p>Feature under development</p></div>', score: 70 };
+        }
+
+        function calculateResidualIncome() {
+            return { html: '<div class="analysis-card"><div class="analysis-title">Residual Income</div><p>Feature under development</p></div>', score: 70 };
+        }
+
+        function calculateGrahamAdvanced() {
+            const { eps, bvps, currentPrice } = analysisData;
+            if (!eps || !bvps) return null;
+            
+            const intrinsicValue = Math.sqrt(22.5 * eps * bvps);
+            const margin = ((intrinsicValue - currentPrice) / intrinsicValue) * 100;
+            
+            let score = margin > 30 ? 90 : margin > 20 ? 80 : margin > 10 ? 70 : margin > 0 ? 60 : 30;
+            const valueClass = margin > 20 ? 'excellent' : margin > 0 ? 'good' : 'poor';
+            
+            return {
+                html: `
+                    <div class="analysis-card">
+                        <div class="analysis-header">
+                            <div class="analysis-icon">📈</div>
+                            <div class="analysis-title">Benjamin Graham Formula</div>
+                        </div>
+                        <div class="analysis-value ${valueClass}">Rp ${formatNumber(intrinsicValue)}</div>
+                        <div class="analysis-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Formula</div>
+                                <div class="detail-value">√(22.5 × ${eps} × ${bvps})</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Margin of Safety</div>
+                                <div class="detail-value">${margin > 0 ? '+' : ''}${margin.toFixed(1)}%</div>
+                            </div>
+                        </div>
+                        <div class="recommendation ${margin > 20 ? 'buy' : margin > 0 ? 'hold' : 'sell'}">
+                            ${margin > 20 ? '🟢 STRONG BUY - Classic value opportunity' : 
+                              margin > 0 ? '🟡 BUY - Undervalued by Graham standards' : 
+                              '🔴 AVOID - Overvalued'}
+                        </div>
+                    </div>
+                `,
+                score
+            };
+        }
+
+        function calculateDividendAdvanced() {
+            return { html: '<div class="analysis-card"><div class="analysis-title">Dividend Model</div><p>Feature under development</p></div>', score: 70 };
+        }
+
+        function calculateAssetBased() {
+            return { html: '<div class="analysis-card"><div class="analysis-title">Asset-Based</div><p>Feature under development</p></div>', score: 70 };
+        }
+
+        function calculateROICAnalysis() {
+            return { html: '<div class="analysis-card"><div class="analysis-title">ROIC Analysis</div><p>Feature under development</p></div>', score: 70 };
+        }
+
+        function calculateBetaAnalysis() {
+            return { html: '<div class="analysis-card"><div class="analysis-title">Beta Analysis</div><p>Feature under development</p></div>', score: 70 };
+        }
+
+        function calculateLeverageAnalysis() {
+            return { html: '<div class="analysis-card"><div class="analysis-title">Leverage Analysis</div><p>Feature under development</p></div>', score: 70 };
+        }
+
+        function calculateVolatilityAnalysis() {
+            return { html: '<div class="analysis-card"><div class="analysis-title">Volatility Analysis</div><p>Feature under development</p></div>', score: 70 };
+        }
+
+        function getFinalRecommendation(score) {
+            if (score >= 85) return "🟢 STRONG BUY - Exceptional investment opportunity with multiple confirmations";
+            if (score >= 75) return "🟢 BUY - Strong fundamentals with good upside potential";
+            if (score >= 65) return "🟡 BUY/HOLD - Decent investment with some positive indicators";
+            if (score >= 50) return "🟠 HOLD - Mixed signals, proceed with caution";
+            if (score >= 35) return "🟠 WEAK HOLD - Below-average fundamentals, consider exit strategy";
+            return "🔴 SELL/AVOID - Poor fundamentals, high risk of capital loss";
+        }
+
+        function formatNumber(num) {
+            if (Math.abs(num) >= 1e9) {
+                return (num / 1e9).toFixed(1) + 'B';
+            } else if (Math.abs(num) >= 1e6) {
+                return (num / 1e6).toFixed(1) + 'M';
+            } else if (Math.abs(num) >= 1e3) {
+                return (num / 1e3).toFixed(1) + 'K';
+            }
+            return Math.round(num).toLocaleString('id-ID');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-show some popular methods
+            // toggleMethod('dcf');
+            // toggleMethod('graham');
+            // toggleMethod('piotroski');
+        });
+    </script>
+</body>
+</html>Complexity: <span class="complexity-stars">★★★★★</span></div>
+                    <div class="method-best-for">✅ Best for: Mature companies with stable cash flows</div>
+                </div>
+
+                <div class="method-card" onclick="toggleMethod('fcfe')">
+                    <div class="method-header">
+                        <div class="method-icon">💎</div>
+                        <div class="method-title">Free Cash Flow to Equity</div>
+                    </div>
+                    <div class="method-description">Nilai berdasarkan arus kas yang tersedia untuk pemegang saham.</div>
+                    <div class="method-formula">Value = Σ FCFE/(1+ke)^t</div>
+                    <div class="method-complexity">Complexity: <span class="complexity-stars">★★★★☆</span></div>
+                    <div class="method-best-for">✅ Best for: High leverage companies</div>
+                </div>
+
+                <div class="method-card" onclick="toggleMethod('residual')">
+                    <div class="method-header">
+                        <div class="method-icon">📊</div>
+                        <div class="method-title">Residual Income Model</div>
+                    </div>
+                    <div class="method-description">Nilai berdasarkan excess return di atas cost of equity.</div>
+                    <div class="method-formula">RI = NI - (ke × Book Value)</div>
+                    <div class="method-complexity">Complexity: <span class="complexity-stars">★★★★☆</span></div>
+                    <div class="method-best-for">✅ Best for: Financial institutions</div>
+                </div>
+
+                <div class="method-card" onclick="toggleMethod('graham')">
+                    <div class="method-header">
+                        <div class="method-icon">📈</div>
+                        <div class="method-title">Benjamin Graham Formula</div>
+                    </div>
+                    <div class="method-description">Formula klasik value investing dari mentor Warren Buffett.</div>
+                    <div class="method-formula">Value = √(22.5 × EPS × BVPS)</div>
+                    <div class="method-complexity">Complexity: <span class="complexity-stars">★★☆☆☆</span></div>
+                    <div class="method-best-for">✅ Best for: Conservative value investing</div>
+                </div>
+
+                <div class="method-card" onclick="toggleMethod('dividend')">
+                    <div class="method-header">
+                        <div class="method-icon">💵</div>
+                        <div class="method-title">Dividend Discount Model</div>
+                    </div>
+                    <div class="method-description">Nilai berdasarkan present value dividen masa depan.</div>
+                    <div class="method-formula">Value = D₁/(r-g) + Growth Premium</div>
+                    <div class="method-complexity">Complexity: <span class="complexity-stars">★★★☆☆</span></div>
+                    <div class="method-best-for">✅ Best for: Dividend aristocrats</div>
+                </div>
+
+                <div class="method-card" onclick="toggleMethod('asset')">
+                    <div class="method-header">
+                        <div class="method-icon">🏭</div>
+                        <div class="method-title">Asset-Based Valuation</div>
+                    </div>
+                    <div class="method-description">Nilai berdasarkan fair value aset perusahaan.</div>
+                    <div class="method-formula">Value = Replacement Cost - Liabilities</div>
+                    <div class="method-complexity">Complexity: <span class="complexity-stars">★★★☆☆</span></div>
+                    <div class="method-best-for">✅ Best for: Asset-heavy industries</div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <button class="btn btn-primary" onclick="showTab('quality')">Next: Quality Analysis →</button>
+            </div>
+        </div>
+
+        <!-- Quality Analysis Tab -->
+        <div class="tab-content" id="quality">
+            <h2 class="section-title">🏆 Select Quality Metrics</h2>
+            
+            <div class="analysis-grid">
+                <div class="method-card" onclick="toggleMethod('piotroski')">
+                    <div class="method-header">
+                        <div class="method-icon">🎯</div>
+                        <div class="method-title">Piotroski F-Score</div>
+                    </div>
+                    <div class="method-description">9-point scoring system untuk mengukur kekuatan fundamental.</div>
+                    <div class="method-formula">Score = Profitability + Leverage + Operating Efficiency</div>
+                    <div class="method-complexity">Complexity: <span class="complexity-stars">★★★☆☆</span></div>
+                    <div class="method-best-for">✅ Best for: Value stock screening</div>
+                </div>
+
+                <div class="method-card" onclick="toggleMethod('altman')">
+                    <div class="method-header">
+                        <div class="method-icon">⚡</div>
+                        <div class="method-title">Altman Z-Score</div>
+                    </div>
+                    <div class="method-description">Prediksi risiko kebangkrutan dalam 2 tahun.</div>
+                    <div class="method-formula">Z = 1.2A + 1.4B + 3.3C + 0.6D + 1.0E</div>
+                    <div class="method-complexity">Complexity: <span class="complexity-stars">★★★☆☆</span></div>
+                    <div class="method-best-for">✅ Best for: Financial distress analysis</div>
+                </div>
+
+                <div class="method-card" onclick="toggleMethod('roe_analysis')">
+                    <div class="method-header">
+                        <div class="method-icon">⚡</div>
+                        <div class="method-title">ROE Decomposition</div>
+                    </div>
+                    <div class="method-description">DuPont analysis untuk breakdown ROE components.</div>
+                    <div class="method-formula">ROE = Profit Margin × Asset Turnover × Equity Multiplier</div>
+                    <div class="method-complexity">Complexity: <span class="complexity-stars">★★★☆☆</span></div>
+                    <div class="method-best-for">✅ Best for: Management efficiency analysis</div>
+                </div>
+
+                <div class="method-card" onclick="toggleMethod('roic')">
+                    <div class="method-header">
+                        <div class="method-icon">🎪</div>
+                        <div class="method-title">ROIC Analysis</div>
+                    </div>
+                    <div class="method-description">Return on Invested Capital vs Cost of Capital.</div>
+                    <div class="method-formula">ROIC = NOPAT / Invested Capital</div>
+                    <div class="method-complexity">Complexity: <span class="complexity-stars">★★★★☆</span></div>
+                    <div class="method-best-for">✅ Best for: Value creation analysis</div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <button class="btn btn-primary" onclick="showTab('risk')">Next: Risk Assessment →</button>
+            </div>
+        </div>
+
+        <!-- Risk Assessment Tab -->
+        <div class="tab-content" id="risk">
+            <h2 class="section-title">⚠️ Select Risk Analysis Methods</h2>
+            
+            <div class="analysis-grid">
+                <div class="method-card" onclick="toggleMethod('beta')">
+                    <div class="method-header">
+                        <div class="method-icon">📊</div>
+                        <div class="method-title">Beta & Market Risk</div>
+                    </div>
+                    <div class="method-description">Mengukur volatilitas saham relatif terhadap pasar.</div>
+                    <div class="method-formula">β = Cov(Ra,Rm) / Var(Rm)</div>
+                    <div class="method-complexity">
